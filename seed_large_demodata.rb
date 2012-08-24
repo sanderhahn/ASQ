@@ -30,12 +30,24 @@ def range (min, max)
   rand * (max-min) + min
 end
 
+rows = []
 (1..10000).each do |i|
-  DB[:items].insert :x => i,
-    :y => i*2,
-    :z => rand(1000),
-    :country => countries[rand(countries.size)],
-    :title => Faker::Name.name,
-    :lat => range(-90, 90),
-    :lon => range(180, -180)
+  rows << {:x => i,
+           :y => i*2,
+           :z => rand(1000),
+           :country => countries[rand(countries.size)],
+           :title => Faker::Name.name,
+           :lat => range(-90, 90),
+           :lon => range(180, -180)}
+end
+
+# batching inserts because running though local mysql tunnel is unbearably slow
+rows.each_slice(250) do |a|
+  sql = "insert into items (x,y,z,country,title,lat,lon) values "
+  a.each do |i|
+    i[:title] = i[:title].gsub(/'/,"''")
+    sql += "(#{i[:x]},#{i[:y]},#{i[:z]},'#{i[:country]}','#{i[:title]}',#{i[:lat]},#{i[:lon]}),"
+  end
+  p sql[0..-2]
+  DB.run sql[0..-2]
 end

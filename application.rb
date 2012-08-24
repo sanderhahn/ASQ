@@ -22,12 +22,10 @@ class Application < Sinatra::Base
     require_relative 'models/querytable'
   end
 
-  use Rack::Auth::Basic, 'Login to use ASQ.' do |username, password|
-    [username, password] == [config['login']['user'], config['login']['pass']]
-  end
-
-  get '/recline' do
-    haml :recline, :layout => :layout_recline
+  unless config['login'].nil?
+    use Rack::Auth::Basic, 'Login to use ASQ.' do |username, password|
+      [username, password] == [config['login']['user'], config['login']['pass']]
+    end
   end
 
   post '/add' do
