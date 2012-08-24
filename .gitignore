@@ -40,3 +40,4 @@ config.yml
 Rakefile
 Gemfile.lock
 tmp/
+.bundle
