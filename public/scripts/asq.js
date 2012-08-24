@@ -43,8 +43,8 @@ var Asq = {
         });
 
         $(window).keydown(Asq.checkShortcuts);
-        $(window).scroll(Asq.infiniteScroll);
-        $(window).scroll(Asq.setHeaders);
+//        $(window).scroll(Asq.infiniteScroll);
+//        $(window).scroll(Asq.setHeaders);
 
         Asq.current.db = $('meta[name="default-db"]').attr('content');
         $('.db a[data-db-name="' + Asq.current.db + '"]').addClass('current');
@@ -946,54 +946,69 @@ var Asq = {
 
     /* Displays fetched results in tabular form. */
     displayData: function(results, append) {
-        if (!Asq.table) {
-            $('body').append('<table class="table-head"><tr></tr></table><table class="table-body"><tbody></tbody></table><p class="meta-results"></p>');
-            Asq.tableHead = $('table.table-head');
-            Asq.table = $('table.table-body');
-            Asq.tableHead.on('click', 'a', Asq.sort);
-            Asq.tableHead.on('mousedown', 'th', Asq.startResizeColumn);
-            $('body').mousemove(Asq.dragRezizeColumn).mouseup(Asq.endResizeColumn);
-        }
 
-        if (typeof append == 'undefined') {
-            Asq.table.css('width', 'auto');
-            Asq.tableHead.css('width', 'auto');
-            Asq.tableHead.find('th').remove();
-            Asq.table.find('tr').remove();
-        }
+        var state = null;
 
-        var rowHtml,
-            count = 0,
-            format = Asq.formatData;
+        var url = '/export/csv/' + Asq.current.db + '/' + Asq.current.queryId;
 
-        $.each(results, function(index, row) {
-            rowHtml = $('<tr>');
-            count = 0;
-            $.each(row, function(header, data) {
-                if (index == 0 && typeof append == 'undefined') {
-                    var aClass = false;
-
-                    if (header == Asq.current.sortColumn) {
-                        aClass = 'sort';
-                        if (Asq.current.sortDir == 'desc') {
-                            aClass += ' sort-desc'
-                        }
-                    }
-
-                    Asq.tableHead.find('tr').append('<th data-offset="' + count + '"><a href="#" data-column="' + header + '"' + (aClass ? ' class="' + aClass + '"' : '') + '>' + header + '</a></th>');
-                }
-                rowHtml.append('<td>' + format(data) + '</td>');
-                ++count;
-            });
-            rowHtml.appendTo(Asq.table.find('tbody'));
+        var dataset = new recline.Model.Dataset({
+            url: url,
+            backend: 'csv',
+            separator: ';',
+            // delimiter: '"',
+            // encoding: 'utf8'
         });
 
-        var currentAmount = Math.min((Asq.current.offsetRow + 1) * 100, Asq.current.totalRows);
+        createExplorer(dataset, state);
 
-        $('.meta-results').html('Displaying ' + currentAmount + ' out of a total of ' + Asq.current.totalRows + ' results.');
-        
-        Asq.setHeaders();
-        Asq.zebraStripe();
+//        if (!Asq.table) {
+//            $('body').append('<table style="display: none;" class="table-head"><tr></tr></table><table style="display: none;" class="table-body"><tbody></tbody></table><p class="meta-results"></p>');
+//            Asq.tableHead = $('table.table-head');
+//            Asq.table = $('table.table-body');
+//            Asq.tableHead.on('click', 'a', Asq.sort);
+//            Asq.tableHead.on('mousedown', 'th', Asq.startResizeColumn);
+//            $('body').mousemove(Asq.dragRezizeColumn).mouseup(Asq.endResizeColumn);
+//        }
+//
+//        if (typeof append == 'undefined') {
+//            Asq.table.css('width', 'auto');
+//            Asq.tableHead.css('width', 'auto');
+//            Asq.tableHead.find('th').remove();
+//            Asq.table.find('tr').remove();
+//        }
+//
+//        var rowHtml,
+//            count = 0,
+//            format = Asq.formatData;
+//
+//        $.each(results, function(index, row) {
+//            rowHtml = $('<tr>');
+//            count = 0;
+//            $.each(row, function(header, data) {
+//                if (index == 0 && typeof append == 'undefined') {
+//                    var aClass = false;
+//
+//                    if (header == Asq.current.sortColumn) {
+//                        aClass = 'sort';
+//                        if (Asq.current.sortDir == 'desc') {
+//                            aClass += ' sort-desc'
+//                        }
+//                    }
+//
+//                    Asq.tableHead.find('tr').append('<th data-offset="' + count + '"><a href="#" data-column="' + header + '"' + (aClass ? ' class="' + aClass + '"' : '') + '>' + header + '</a></th>');
+//                }
+//                rowHtml.append('<td>' + format(data) + '</td>');
+//                ++count;
+//            });
+//            rowHtml.appendTo(Asq.table.find('tbody'));
+//        });
+//
+//        var currentAmount = Math.min((Asq.current.offsetRow + 1) * 100, Asq.current.totalRows);
+//
+//        $('.meta-results').html('Displaying ' + currentAmount + ' out of a total of ' + Asq.current.totalRows + ' results.');
+//
+//        Asq.setHeaders();
+//        Asq.zebraStripe();
     },
 
 
@@ -1028,77 +1043,77 @@ var Asq = {
 
 
     /* Sends a request to the server for a sorted column. */
-    sort: function(e) {
-        if (e.metaKey) return;
-
-        e.preventDefault();
-
-        var newColumn = $(this).attr('data-column');
-
-        if (Asq.current.sortColumn == newColumn) {
-            Asq.current.sortDir = Asq.current.sortDir == 'desc' ? 'asc' : 'desc';
-        }
-        else {
-            Asq.current.sortColumn = newColumn;
-            Asq.current.sortDir = 'asc';
-        }
-
-        Asq.request();
-    },
+//    sort: function(e) {
+//        if (e.metaKey) return;
+//
+//        e.preventDefault();
+//
+//        var newColumn = $(this).attr('data-column');
+//
+//        if (Asq.current.sortColumn == newColumn) {
+//            Asq.current.sortDir = Asq.current.sortDir == 'desc' ? 'asc' : 'desc';
+//        }
+//        else {
+//            Asq.current.sortColumn = newColumn;
+//            Asq.current.sortDir = 'asc';
+//        }
+//
+//        Asq.request();
+//    },
 
 
 
     /* Does a request to the server when the user almost hits the bottom of the web page. */
-    infiniteScroll: function(e) {
-        var windowHeight = $(window).height(),
-            bodyHeight = $('body').outerHeight(),
-            scrollPosition = $(window).scrollTop();
-
-        if ((((bodyHeight > windowHeight && (bodyHeight - (windowHeight + scrollPosition)) < 250) || typeof e == 'boolean') && ((Asq.current.offsetRow + 1) * 100) < Asq.current.totalRows)) {
-            if (Asq.current.requesting > Asq.current.offsetRow) return;
-
-            Asq.current.requesting = Asq.current.offsetRow + 1;
-
-            $('body').addClass('loading loading-query');
-
-            var data = {
-                    id: Asq.current.queryId,
-                    db: Asq.current.db,
-                    sortColumn: Asq.current.sortColumn,
-                    sortDir: Asq.current.sortDir,
-                    offset: Asq.current.requesting
-                };
-
-            $.extend(data, Asq.current.args);
-
-            Asq.log('Infinite scroll.', data);
-
-            $.ajax('/results', {
-                dataType: 'json',
-                type: 'post',
-                data: data,
-                success: function(data) {
-                    $('body').removeClass('loading loading-query');
-                    Asq.current.offsetRow = Asq.current.requesting;
-                    Asq.displayData(data.results, true);
-                    Asq.searchInResults(true);
-
-                    Asq.log('Infinite scroll data received and displayed.');
-
-                    if (typeof e == 'boolean' && bodyHeight < windowHeight && ((Asq.current.offsetRow + 1) * 100) < Asq.current.totalRows) {
-                        Asq.infiniteScroll(true);
-                    }
-                },
-                error: function(data) {
-                    $('body').removeClass('loading loading-query');
-                    Asq.giveMessage('Something went wrong fetching that query. Please try again.');
-                    Asq.current.requesting = Asq.current.offsetRow;
-
-                    Asq.log('Something went wrong fetching that query. Please try again.');
-                }
-            });
-        }
-    },
+//    infiniteScroll: function(e) {
+//        var windowHeight = $(window).height(),
+//            bodyHeight = $('body').outerHeight(),
+//            scrollPosition = $(window).scrollTop();
+//
+//        if ((((bodyHeight > windowHeight && (bodyHeight - (windowHeight + scrollPosition)) < 250) || typeof e == 'boolean') && ((Asq.current.offsetRow + 1) * 100) < Asq.current.totalRows)) {
+//            if (Asq.current.requesting > Asq.current.offsetRow) return;
+//
+//            Asq.current.requesting = Asq.current.offsetRow + 1;
+//
+//            $('body').addClass('loading loading-query');
+//
+//            var data = {
+//                    id: Asq.current.queryId,
+//                    db: Asq.current.db,
+//                    sortColumn: Asq.current.sortColumn,
+//                    sortDir: Asq.current.sortDir,
+//                    offset: Asq.current.requesting
+//                };
+//
+//            $.extend(data, Asq.current.args);
+//
+//            Asq.log('Infinite scroll.', data);
+//
+//            $.ajax('/results', {
+//                dataType: 'json',
+//                type: 'post',
+//                data: data,
+//                success: function(data) {
+//                    $('body').removeClass('loading loading-query');
+//                    Asq.current.offsetRow = Asq.current.requesting;
+//                    Asq.displayData(data.results, true);
+//                    Asq.searchInResults(true);
+//
+//                    Asq.log('Infinite scroll data received and displayed.');
+//
+//                    if (typeof e == 'boolean' && bodyHeight < windowHeight && ((Asq.current.offsetRow + 1) * 100) < Asq.current.totalRows) {
+//                        Asq.infiniteScroll(true);
+//                    }
+//                },
+//                error: function(data) {
+//                    $('body').removeClass('loading loading-query');
+//                    Asq.giveMessage('Something went wrong fetching that query. Please try again.');
+//                    Asq.current.requesting = Asq.current.offsetRow;
+//
+//                    Asq.log('Something went wrong fetching that query. Please try again.');
+//                }
+//            });
+//        }
+//    },
 
 
 
@@ -1120,183 +1135,183 @@ var Asq = {
 
 
     /* Called when a user types in the inline search bar, to filter results from the table. */
-    searchInResults: function(noInfinite) {
-        if (Asq.searchTimer) {
-            clearTimeout(Asq.searchTimer);
-            Asq.searchTimer = null;
-        }
-
-        if (typeof noInfinite == 'undefined' || noInfinite != true) {
-            Asq.searchTimer = setTimeout(Asq.inlineFilter, 1000);
-        }
-        else {
-            Asq.searchTimer = null;
-            Asq.inlineFilter(true);
-        }
-    },
+//    searchInResults: function(noInfinite) {
+//        if (Asq.searchTimer) {
+//            clearTimeout(Asq.searchTimer);
+//            Asq.searchTimer = null;
+//        }
+//
+//        if (typeof noInfinite == 'undefined' || noInfinite != true) {
+//            Asq.searchTimer = setTimeout(Asq.inlineFilter, 1000);
+//        }
+//        else {
+//            Asq.searchTimer = null;
+//            Asq.inlineFilter(true);
+//        }
+//    },
 
 
 
     /* Loops over the table and hides not wanted results from it. */
-    inlineFilter: function(noInfinite) {
-        if (!Asq.table) return;
-
-        var elm = $('.search-in-results'),
-            val = elm.val().toLowerCase(),
-            valSplit = val.split(' '),
-            trElms = Asq.table.find('tbody tr'),
-            toShow,
-            text,
-            totalShown = 0,
-            isRegex = /\/(.+)\//.test(val);
-
-        if (isRegex) {
-            try {
-                var toTestFor = new RegExp(val.substring(1, val.length - 1), 'gi');
-            }
-            catch (e) {
-                isRegex = false;
-            }
-        }
-
-        trElms.each(function(index, trElm) {
-            trElm = $(trElm);
-
-            toShow = false;
-            text = trElm.text().toLowerCase();
-
-            if (val.length == 0) {
-                toShow = true;
-            }
-            else if (isRegex) {
-                toShow = !!toTestFor.test(text);
-            }
-            else {
-                toShow = true
-                for (var i = valSplit.length - 1; i > -1 && toShow; --i) {
-                    toShow = false;
-                    if (text.indexOf(valSplit[i]) != -1) {
-                        toShow = true;
-                    }
-                }
-            }
-
-            if (toShow) {
-                ++totalShown;
-                trElm.removeClass('hide');
-            }
-            else {
-                trElm.addClass('hide');
-            }
-        });
-
-        Asq.zebraStripe();
-
-        if (typeof noInfinite == 'undefined' && val.length > 0) {
-            Asq.infiniteScroll(true);
-        }
-
-        var currentAmount = Math.min(totalShown, (Asq.current.offsetRow + 1) * 100, Asq.current.totalRows);
-
-        $('.meta-results').html('Displaying ' + currentAmount + ' out of a total of ' + Asq.current.totalRows + ' results.');
-
-        Asq.setHeaders();
-    },
+//    inlineFilter: function(noInfinite) {
+//        if (!Asq.table) return;
+//
+//        var elm = $('.search-in-results'),
+//            val = elm.val().toLowerCase(),
+//            valSplit = val.split(' '),
+//            trElms = Asq.table.find('tbody tr'),
+//            toShow,
+//            text,
+//            totalShown = 0,
+//            isRegex = /\/(.+)\//.test(val);
+//
+//        if (isRegex) {
+//            try {
+//                var toTestFor = new RegExp(val.substring(1, val.length - 1), 'gi');
+//            }
+//            catch (e) {
+//                isRegex = false;
+//            }
+//        }
+//
+//        trElms.each(function(index, trElm) {
+//            trElm = $(trElm);
+//
+//            toShow = false;
+//            text = trElm.text().toLowerCase();
+//
+//            if (val.length == 0) {
+//                toShow = true;
+//            }
+//            else if (isRegex) {
+//                toShow = !!toTestFor.test(text);
+//            }
+//            else {
+//                toShow = true
+//                for (var i = valSplit.length - 1; i > -1 && toShow; --i) {
+//                    toShow = false;
+//                    if (text.indexOf(valSplit[i]) != -1) {
+//                        toShow = true;
+//                    }
+//                }
+//            }
+//
+//            if (toShow) {
+//                ++totalShown;
+//                trElm.removeClass('hide');
+//            }
+//            else {
+//                trElm.addClass('hide');
+//            }
+//        });
+//
+//        Asq.zebraStripe();
+//
+//        if (typeof noInfinite == 'undefined' && val.length > 0) {
+//            Asq.infiniteScroll(true);
+//        }
+//
+//        var currentAmount = Math.min(totalShown, (Asq.current.offsetRow + 1) * 100, Asq.current.totalRows);
+//
+//        $('.meta-results').html('Displaying ' + currentAmount + ' out of a total of ' + Asq.current.totalRows + ' results.');
+//
+//        Asq.setHeaders();
+//    },
 
 
 
     /* Sets the width of the table header for fixed positioning */
-    setHeaders: function() {
-        var headers = Asq.tableHead.find('th'),
-            firstRow = Asq.table.find('tr:not(.hide):first td');
-
-        Asq.tableHead.css({
-            left: '-' + $('body').scrollLeft() + 'px',
-            width: Asq.table.outerWidth() + 'px'
-        });
-
-        headers.each(function(index, elm) {
-            elm = $(elm);
-            var toSetWidth = firstRow.eq(index).outerWidth(),
-                scrollWidth = elm[0].scrollWidth;
-
-            if (toSetWidth < scrollWidth) {
-                firstRow.eq(index).css('min-width', scrollWidth);
-            }
-            else {
-                elm.css('width', firstRow.eq(index).outerWidth() + 'px');
-            }
-        });
-
-        Asq.tableHead.width(Asq.table.outerWidth() + 10);
-    },
+//    setHeaders: function() {
+//        var headers = Asq.tableHead.find('th'),
+//            firstRow = Asq.table.find('tr:not(.hide):first td');
+//
+//        Asq.tableHead.css({
+//            left: '-' + $('body').scrollLeft() + 'px',
+//            width: Asq.table.outerWidth() + 'px'
+//        });
+//
+//        headers.each(function(index, elm) {
+//            elm = $(elm);
+//            var toSetWidth = firstRow.eq(index).outerWidth(),
+//                scrollWidth = elm[0].scrollWidth;
+//
+//            if (toSetWidth < scrollWidth) {
+//                firstRow.eq(index).css('min-width', scrollWidth);
+//            }
+//            else {
+//                elm.css('width', firstRow.eq(index).outerWidth() + 'px');
+//            }
+//        });
+//
+//        Asq.tableHead.width(Asq.table.outerWidth() + 10);
+//    },
 
 
 
     /* Clicking on a table header calls this function, that sets metadata about the event in a global var. */
-    startResizeColumn: function(e) {
-        var elm = $(this),
-            rightSideOffset = elm.offset().left + elm.outerWidth();
-
-        if (e.pageX < rightSideOffset && (rightSideOffset - e.pageX) < 12) {
-            Asq.resize.resizing = true;
-            Asq.resize.elm = elm;
-            Asq.resize.mousePositionOnStart = e.pageX;
-            Asq.resize.tableWidthOnStart = Asq.tableHead.outerWidth();
-            Asq.resize.cellWidthOnStart = elm.outerWidth();
-            $('body').addClass('resizing');
-        }
-    },
+//    startResizeColumn: function(e) {
+//        var elm = $(this),
+//            rightSideOffset = elm.offset().left + elm.outerWidth();
+//
+//        if (e.pageX < rightSideOffset && (rightSideOffset - e.pageX) < 12) {
+//            Asq.resize.resizing = true;
+//            Asq.resize.elm = elm;
+//            Asq.resize.mousePositionOnStart = e.pageX;
+//            Asq.resize.tableWidthOnStart = Asq.tableHead.outerWidth();
+//            Asq.resize.cellWidthOnStart = elm.outerWidth();
+//            $('body').addClass('resizing');
+//        }
+//    },
 
 
 
     /* Resizes a column when the drag is initiated an the cursor is move. */
-    dragRezizeColumn: function(e) {
-        if (!Asq.resize.resizing) return;
-
-        var mousePositionNow = e.pageX,
-            diff = mousePositionNow - Asq.resize.mousePositionOnStart,
-            elmOffset = parseInt(Asq.resize.elm.attr('data-offset'), 10);
-
-        Asq.resize.elm.css('width', Asq.resize.cellWidthOnStart + diff + 'px');
-
-        Asq.table.find('tr:not(.hide):first td:eq(' + elmOffset + ')').css('width', Asq.resize.cellWidthOnStart + diff + 'px');
-        Asq.tableHead.css('width', Asq.resize.tableWidthOnStart + diff + 'px');
-        Asq.table.css('width', Asq.resize.tableWidthOnStart + diff + 'px');
-    },
+//    dragRezizeColumn: function(e) {
+//        if (!Asq.resize.resizing) return;
+//
+//        var mousePositionNow = e.pageX,
+//            diff = mousePositionNow - Asq.resize.mousePositionOnStart,
+//            elmOffset = parseInt(Asq.resize.elm.attr('data-offset'), 10);
+//
+//        Asq.resize.elm.css('width', Asq.resize.cellWidthOnStart + diff + 'px');
+//
+//        Asq.table.find('tr:not(.hide):first td:eq(' + elmOffset + ')').css('width', Asq.resize.cellWidthOnStart + diff + 'px');
+//        Asq.tableHead.css('width', Asq.resize.tableWidthOnStart + diff + 'px');
+//        Asq.table.css('width', Asq.resize.tableWidthOnStart + diff + 'px');
+//    },
 
 
 
     /* Unsets drag and fits all columns appropriately */
-    endResizeColumn: function() {
-        Asq.resize.resizing = false;
-        $('body').removeClass('resizing');
-        Asq.setHeaders();
-    },
+//    endResizeColumn: function() {
+//        Asq.resize.resizing = false;
+//        $('body').removeClass('resizing');
+//        Asq.setHeaders();
+//    },
 
 
 
     /* Zebrastripes the table. */
-    zebraStripe: function() {
-        if (!Asq.table) return;
-
-        var even = false;
-
-        Asq.table.find('tbody tr').each(function(index, elm) {
-            elm = $(elm);
-
-            if (elm.is('.hide')) return;
-
-            if (even) {
-                elm.addClass('even');
-            }
-            else {
-                elm.removeClass('even');   
-            }
-
-            even = !even;
-        });
-    },
+//    zebraStripe: function() {
+//        if (!Asq.table) return;
+//
+//        var even = false;
+//
+//        Asq.table.find('tbody tr').each(function(index, elm) {
+//            elm = $(elm);
+//
+//            if (elm.is('.hide')) return;
+//
+//            if (even) {
+//                elm.addClass('even');
+//            }
+//            else {
+//                elm.removeClass('even');
+//            }
+//
+//            even = !even;
+//        });
+//    },
 
 
 

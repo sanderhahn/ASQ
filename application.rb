@@ -1,4 +1,11 @@
+require './models/init'
+require './models/queryrow'
+require './models/querytable'
+require 'sinatra/partial'
+
 class Application < Sinatra::Base
+  register Sinatra::Partial
+
   set :root, File.dirname(__FILE__)
   set :views, settings.root + '/templates'
   set :public_folder, settings.root + '/public'
@@ -17,6 +24,10 @@ class Application < Sinatra::Base
 
   use Rack::Auth::Basic, 'Login to use ASQ.' do |username, password|
     [username, password] == [config['login']['user'], config['login']['pass']]
+  end
+
+  get '/recline' do
+    haml :recline, :layout => :layout_recline
   end
 
   post '/add' do
@@ -42,12 +53,16 @@ class Application < Sinatra::Base
 
   post '/results' do
     row = QueryRow.new(params[:id].to_i)
-    row.results(params).to_json
+    begin
+      row.results(params).to_json
+    rescue
+      {:success => false}.to_json
+    end
   end
 
   get '/styles/screen.css' do
     content_type 'text/css', :charset => 'utf-8'
-    sass :screen, :style => :expanded
+    sass :screen, :styles => :expanded
   end
 
   post '/autosuggestable' do

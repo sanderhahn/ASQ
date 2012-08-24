@@ -24,7 +24,7 @@
     %a.open.icon.args.hide{ :href => '#', 'data-ref' => 'args' } Args
     %a.open.icon.export.hide{ :href => '#', 'data-ref' => 'export' } Export
 
-    %input.search-in-results{ :type => 'search', :placeholder => 'Search in results' }
+    %input.search-in-results{ :type => 'search', :placeholder => 'Search in results', :style => 'display: none' }
 
 %section#edit.hide
     %div
@@ -92,3 +92,15 @@
             %li Note that for comparison with the <code>=</code> you need to wrap the column name in the <code>DATE(columnname)</code> or one of the other date functions in MySQL. <a href="http://dev.mysql.com/doc/refman/5.5/en/date-and-time-functions.html">See also the documentation on the MySQL website.</a>
             %li The names of the variables can't contain spaces.
             %li If you use strings in a comparison, wrap the code around quotes, otherwise MySQL does not know that it is dealing with strings.
+
+.container
+    %style{:type => 'text/css'}
+        :plain
+            .recline-slickgrid {
+              height: 550px;
+            }
+            .recline-timeline .vmm-timeline {
+              height: 550px;
+            }
+    %div{ class: "data-explorer-here" }
+    %div{ style: "clear: both;"}

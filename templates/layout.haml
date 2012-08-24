@@ -10,13 +10,20 @@
     - unless Config['misc']['defaultDb'] === false
       %meta{ :name => 'default-db', :content => Config['misc']['defaultDb'] }
 
+    %link{ :rel => 'stylesheet', :href => '/scripts/recline/vendor/bootstrap/2.0.2/css/bootstrap.css' }
+
   %body
     = yield
 
-    %script{ :src => '/scripts/jquery.js'}
+    = partial '_recline-deps'
+    %script{ type: "text/javascript", src: "/scripts/recline/app.js"}
+
+    -#%script{:src => "/scripts/recline/vendor/jquery/1.7.1/jquery.js", :type => "text/javascript"}
+    -#%script{ :src => '/scripts/jquery.js'}
     %script{ :src => '/scripts/codemirror/lib/codemirror.js'}
     %script{ :src => '/scripts/codemirror/mode/mysql/mysql.js'}
     %script{ :src => '/scripts/datepicker/date.js'}
     %script{ :src => '/scripts/datepicker/jquery.datepicker.js'}
     %script{ :src => '/scripts/jquery.autosuggest.js'}
     %script{ :src => '/scripts/asq.js'}
+

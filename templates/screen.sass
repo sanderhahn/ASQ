@@ -45,7 +45,6 @@ body
         text-align: center
         top: 7em
         width: 16em
-        z-index: 1000
 
     &.resizing
         cursor: col-resize
@@ -126,10 +125,12 @@ a
         outline: none
 
 header
+    z-index: 3
     background: #E8E8E8
     border-bottom: 0.1em solid #999
     color: #000
     font-size: 1em
+    font-size: 10pt
     height: 3em
     left: 0
     line-height: 1em
@@ -477,60 +478,60 @@ section
         &:focus
             background-color: #F1F1F1
 
-table
-    border-spacing: 0
-    width: auto
-
-    td,
-    th
-        border: 0.1em solid #DDD
-        border-width: 0 0.1em 0.1em 0
-        box-sizing: border-box
-        margin-bottom: 0
-        overflow: hidden
-        padding: 0.15em 1em 0.15em 0.5em
-        text-align: left
-        width: auto
-
-    tr.even td
-        background-color: #EEE
-
-    a
-        text-decoration: none
-
-        &:hover,
-        &:focus
-            text-decoration: underline
-
-    p,
-    ul,
-    ol,
-    li,
-    h1,
-    h2,
-    h3,
-    h4,
-    h5,
-    h6
-        font-size: 1em
-        font-weight: normal
-
-    &.table-head
-        height: 1.2em
-        left: 0
-        position: fixed
-        top: 5.1em
-        width: 3000px
-        z-index: 4
-
-        th
-            background: #FFF
-            float: left
-            height: 1.5em
-            line-height: 1.2em
-
-            &:hover
-                background: #FFF url(/images/resize.png) repeat-y 100% 0
+//table
+//    border-spacing: 0
+//    width: auto
+//
+//    td,
+//    th
+//        border: 0.1em solid #DDD
+//        border-width: 0 0.1em 0.1em 0
+//        box-sizing: border-box
+//        margin-bottom: 0
+//        overflow: hidden
+//        padding: 0.15em 1em 0.15em 0.5em
+//        text-align: left
+//        width: auto
+//
+//    tr.even td
+//        background-color: #EEE
+//
+//    a
+//        text-decoration: none
+//
+//        &:hover,
+//        &:focus
+//            text-decoration: underline
+//
+//    p,
+//    ul,
+//    ol,
+//    li,
+//    h1,
+//    h2,
+//    h3,
+//    h4,
+//    h5,
+//    h6
+//        font-size: 1em
+//        font-weight: normal
+//
+//    &.table-head
+//        height: 1.2em
+//        left: 0
+//        position: fixed
+//        top: 5.1em
+//        width: 3000px
+//        z-index: 4
+//
+//        th
+//            background: #FFF
+//            float: left
+//            height: 1.5em
+//            line-height: 1.2em
+//
+//            &:hover
+//                background: #FFF url(/images/resize.png) repeat-y 100% 0
 
 .optionsmenu
     background: #666
